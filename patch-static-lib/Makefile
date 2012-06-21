@@ -13,7 +13,7 @@ $(AB_LIB): $(AB_OBJS)
 	$(AR) rcu $@ $(AB_OBJS)
 
 $(M_EXE): $(M_OBJS) $(AB_LIB)
-	$(CC) $(M_OBJS) -o $@ -L. -lab -Xlinker --allow-multiple-definition
+	$(CC) $(M_OBJS) -o $@ -L. -lab -Wl,--allow-multiple-definition
 
 .PHONY: all
 
