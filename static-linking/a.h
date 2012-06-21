@@ -3,5 +3,6 @@
 
 extern void awesome(void);
 extern void perfect(void);
+extern void perfect_awesome(void);
 
 #endif /* __A_H__ */

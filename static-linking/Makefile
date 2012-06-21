@@ -1,19 +1,19 @@
 CC = gcc
 CPPFLAGS = -I.
 
-A_LIB = liba.a
-A_OBJS = a.o
+AB_LIB = libab.a
+AB_OBJS = a.o b.o
 
-B_LIB = libb.a
-B_OBJS = b.o
+M_EXE = main.exe
+M_OBJS = main.o patch.o
 
-all: $(A_LIB) $(B_LIB)
+all: $(AB_LIB) $(B_LIB) $(M_EXE)
 
-$(A_LIB): $(A_OBJS)
-	$(AR) rcu $@ $(A_OBJS)
+$(AB_LIB): $(AB_OBJS)
+	$(AR) rcu $@ $(AB_OBJS)
 
-$(B_LIB): $(B_OBJS)
-	$(AR) rcu $@ $(B_OBJS)
+$(M_EXE): $(M_OBJS) $(AB_LIB)
+	$(CC) $(M_OBJS) -o $@ -L. -lab -Xlinker --allow-multiple-definition
 
 .PHONY: all
 
