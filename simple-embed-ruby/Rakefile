@@ -1,0 +1,58 @@
+require "rake/clean"
+require "rbconfig"
+
+def compile_c(source, target)
+  cflags = RbConfig::CONFIG["CFLAGS"]
+  cppflags = RbConfig::CONFIG["CPPFLAGS"]
+
+  hdr_dir = RbConfig::CONFIG["rubyhdrdir"]
+  arch_dir = RbConfig::CONFIG["arch"]
+
+  include_dirs = "-I#{hdr_dir}/#{arch_dir} -I#{hdr_dir}"
+
+  cc = ENV.fetch("CC", RbConfig::CONFIG["CC"])
+
+  sh "#{cc} -c #{source} -o #{target} #{cflags} #{cppflags} #{include_dirs}"
+end
+
+def link_ruby(objects, target)
+  libruby_dir = RbConfig::CONFIG["libdir"]
+  libruby = RbConfig::CONFIG["LIBRUBYARG_STATIC"]
+
+  libs = RbConfig::CONFIG["LIBS"]
+  libs_dir = "-L#{libruby_dir} #{libruby} #{libs}"
+  libs_flags = RbConfig::CONFIG["LDFLAGS"]
+  libs_opts = "-Wl,--wrap=rb_require,--wrap=rb_require_safe"
+
+  cc = ENV.fetch("CC", RbConfig::CONFIG["CC"])
+
+  sh "#{cc} #{objects.join(' ')} -o #{target} #{libs_dir} #{libs_flags} #{libs_opts}"
+end
+
+def strip_exe(target)
+  strip = ENV.fetch("STRIP", RbConfig::CONFIG["STRIP"])
+  strip_opts = "-s"
+  sh "#{strip} #{strip_opts} #{target}"
+end
+
+rule ".o" => ".c" do |t|
+  compile_c t.source, t.name
+end
+
+SRCS = FileList["src/*.c"]
+OBJS = SRCS.ext(".o")
+EXT  = RbConfig::CONFIG["EXEEXT"]
+EXE  = "embed-ruby#{EXT}"
+
+file EXE => OBJS do |t|
+  link_ruby t.prerequisites, t.name
+  strip_exe t.name
+end
+
+CLEAN.include OBJS
+CLEAN.include EXE
+
+desc "Compile executable"
+task :compile => [EXE]
+
+task :default => [:compile]
