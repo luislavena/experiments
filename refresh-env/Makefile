@@ -1,4 +1,6 @@
 CC = gcc
+STRIP = strip
+
 CPPFLAGS = -I.
 
 EXE  = refresh-env.exe
@@ -9,6 +11,7 @@ all: $(EXE)
 
 $(EXE): $(OBJS)
 	$(CC) $(OBJS) -o $@ -L. $(LIBS)
+	$(STRIP) -S $@
 
 .PHONY: all
 
