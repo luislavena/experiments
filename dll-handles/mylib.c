@@ -27,7 +27,7 @@ void load_library(char *filename)
 	}
 	else
 	{
-		printf("Failed to load dll1: %d\n", GetLastError());
+		printf("Failed to load: '%s' (%d)\n", filename, GetLastError());
 	}
 
 	if (handle)
